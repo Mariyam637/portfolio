@@ -1,4 +1,4 @@
-const BASE_URL = ''; // Relative path leverages Vite dev proxy & same-origin prod
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''; // Relative path leverages Vite dev proxy & same-origin prod
 
 export const api = {
   // Public Data
