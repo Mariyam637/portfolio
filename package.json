@@ -4,12 +4,18 @@
   "private": true,
   "description": "Riyas Nifran - Premium Accounting & Finance E-Portfolio Full-Stack Application",
   "scripts": {
-    "install:all": "npm --prefix server install && npm --prefix client install",
-    "server": "npm --prefix server run dev",
+    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,yellow\" \"npm run server\" \"npm run client\"",
+    "dev:client": "npm --prefix client run dev",
+    "dev:server": "npm --prefix server run dev",
     "client": "npm --prefix client run dev",
+    "server": "npm --prefix server run dev",
+    "install:all": "npm --prefix server install && npm --prefix client install",
     "seed": "npm --prefix server run seed",
-    "build": "npm --prefix client run build",
+    "build": "npm --prefix client install && npm --prefix client run build",
+    "vercel-build": "npm --prefix client install && npm --prefix client run build",
     "start": "npm --prefix server start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }
-
