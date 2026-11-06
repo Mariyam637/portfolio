@@ -80,6 +80,16 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Production: Serve Frontend Client SPA
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = path.join(__dirname, '../../client/dist');
+  app.use(express.static(clientDist));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(clientDist, 'index.html'));
+  });
+}
+
 // Centralized error handler
 app.use((err, req, res, next) => {
   console.error('[API Error]:', err.stack);
