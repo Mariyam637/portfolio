@@ -3,6 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "client/dist",
   "framework": "vite",
+  "public": true,
   "rewrites": [
     {
       "source": "/(.*)",
