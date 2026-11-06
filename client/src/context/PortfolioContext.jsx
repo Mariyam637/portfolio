@@ -1,25 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../services/api';
+import { initialPortfolioData } from '../data/initialPortfolioData';
 
 const PortfolioContext = createContext(null);
 
 export const PortfolioProvider = ({ children }) => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(initialPortfolioData);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchData = async () => {
     try {
-      setLoading(true);
       const res = await api.getPublicData();
-      if (res.success) {
+      if (res && res.success && res.data) {
         setData(res.data);
-      } else {
-        throw new Error(res.message || 'Failed to load portfolio data');
       }
     } catch (err) {
-      console.error('Error fetching portfolio data:', err);
-      setError(err.message);
+      // If the backend API is offline or deployed as static frontend on Vercel,
+      // gracefully preserve verified initial data without throwing an error screen
+      console.warn('API unavailable or returned non-JSON, using verified portfolio data:', err.message);
     } finally {
       setLoading(false);
     }
@@ -43,4 +42,3 @@ export const usePortfolio = () => {
   }
   return context;
 };
-

@@ -1,56 +1,71 @@
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || ''; // Relative path leverages Vite dev proxy & same-origin prod
 
+async function parseResponse(res) {
+  const contentType = res.headers.get('content-type');
+  if (contentType && contentType.includes('application/json')) {
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Request failed');
+    return data;
+  }
+  const text = await res.text();
+  throw new Error(`Server returned non-JSON response (${res.status}): ${text.slice(0, 40)}...`);
+}
+
 export const api = {
   // Public Data
   async getPublicData() {
-    const res = await fetch(`${BASE_URL}/api/public/all`);
-    if (!res.ok) throw new Error('Failed to load portfolio data');
-    return res.json();
+    try {
+      const res = await fetch(`${BASE_URL}/api/public/all`);
+      return await parseResponse(res);
+    } catch (err) {
+      console.warn('[Portfolio API] Public data fetch failed, using built-in data:', err.message);
+      return { success: false, error: err.message };
+    }
   },
 
   async getProfile() {
     const res = await fetch(`${BASE_URL}/api/public/profile`);
-    return res.json();
+    return parseResponse(res);
   },
 
   async getAcademics() {
     const res = await fetch(`${BASE_URL}/api/public/academics`);
-    return res.json();
+    return parseResponse(res);
   },
 
   async getProjects() {
     const res = await fetch(`${BASE_URL}/api/public/projects`);
-    return res.json();
+    return parseResponse(res);
   },
 
   async getCompanyVisits() {
     const res = await fetch(`${BASE_URL}/api/public/company-visits`);
-    return res.json();
+    return parseResponse(res);
   },
 
   async getActivities() {
     const res = await fetch(`${BASE_URL}/api/public/activities`);
-    return res.json();
+    return parseResponse(res);
   },
 
   async getEvents() {
     const res = await fetch(`${BASE_URL}/api/public/events`);
-    return res.json();
+    return parseResponse(res);
   },
 
   async getSkills() {
     const res = await fetch(`${BASE_URL}/api/public/skills`);
-    return res.json();
+    return parseResponse(res);
   },
 
   async getCertificates() {
     const res = await fetch(`${BASE_URL}/api/public/certificates`);
-    return res.json();
+    return parseResponse(res);
   },
 
   async getReflection() {
     const res = await fetch(`${BASE_URL}/api/public/reflection`);
-    return res.json();
+    return parseResponse(res);
   },
 
   // Contact
@@ -60,9 +75,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Error submitting message');
-    return data;
+    return parseResponse(res);
   },
 
   // Auth
@@ -73,9 +86,7 @@ export const api = {
       credentials: 'include',
       body: JSON.stringify({ username, password })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Login failed');
-    return data;
+    return parseResponse(res);
   },
 
   async changePassword(currentPassword, newPassword, token) {
@@ -88,9 +99,7 @@ export const api = {
       credentials: 'include',
       body: JSON.stringify({ currentPassword, newPassword })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to change password');
-    return data;
+    return parseResponse(res);
   },
 
   async checkAuth(token) {
@@ -99,8 +108,7 @@ export const api = {
       headers,
       credentials: 'include'
     });
-    if (!res.ok) throw new Error('Not authenticated');
-    return res.json();
+    return parseResponse(res);
   },
 
   async logout() {
@@ -108,7 +116,7 @@ export const api = {
       method: 'POST',
       credentials: 'include'
     });
-    return res.json();
+    return parseResponse(res);
   },
 
   // Admin Overview
@@ -117,8 +125,7 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
       credentials: 'include'
     });
-    if (!res.ok) throw new Error('Failed to load overview data');
-    return res.json();
+    return parseResponse(res);
   },
 
   // Admin Profile (includes dateOfBirth)
@@ -127,7 +134,7 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
       credentials: 'include'
     });
-    return res.json();
+    return parseResponse(res);
   },
 
   async updateAdminProfile(profileData, token) {
@@ -140,9 +147,7 @@ export const api = {
       credentials: 'include',
       body: JSON.stringify(profileData)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Failed to update profile');
-    return data;
+    return parseResponse(res);
   },
 
   // Generic Admin CRUD Helper
@@ -151,7 +156,7 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
       credentials: 'include'
     });
-    return res.json();
+    return parseResponse(res);
   },
 
   async adminCreate(endpoint, payload, token) {
@@ -164,9 +169,7 @@ export const api = {
       credentials: 'include',
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || `Failed to create item in ${endpoint}`);
-    return data;
+    return parseResponse(res);
   },
 
   async adminUpdate(endpoint, id, payload, token) {
@@ -180,9 +183,7 @@ export const api = {
       credentials: 'include',
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || `Failed to update ${endpoint}`);
-    return data;
+    return parseResponse(res);
   },
 
   async adminDelete(endpoint, id, token) {
@@ -191,9 +192,7 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
       credentials: 'include'
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || `Failed to delete ${endpoint}`);
-    return data;
+    return parseResponse(res);
   },
 
   // Upload File
@@ -209,9 +208,7 @@ export const api = {
       credentials: 'include',
       body: formData
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'File upload failed');
-    return data;
+    return parseResponse(res);
   },
 
   // Get Documents List
@@ -220,7 +217,7 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
       credentials: 'include'
     });
-    return res.json();
+    return parseResponse(res);
   },
 
   async deleteDocument(id, token) {
@@ -229,7 +226,6 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
       credentials: 'include'
     });
-    return res.json();
+    return parseResponse(res);
   }
 };
-

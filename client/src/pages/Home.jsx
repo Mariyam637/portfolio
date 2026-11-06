@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Download, GraduationCap, Award, Building2, BookOpen, CheckCircle2, ChevronRight, FileText, Mail, Phone, MapPin } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import { initialPortfolioData } from '../data/initialPortfolioData';
 import { AccountingLedgerLines, SubtleFinancialChart, VerifiedStatCounter } from '../components/AccountingDecor';
 import AcademicCard from '../components/AcademicCard';
 import ProjectCard from '../components/ProjectCard';
@@ -24,23 +25,8 @@ const Home = () => {
     );
   }
 
-  if (error || !data) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-finance-ivory p-4">
-        <div className="text-center max-w-md bg-white p-8 rounded-xl border border-finance-border shadow-subtle">
-          <p className="text-finance-red font-medium mb-4">Unable to load portfolio details: {error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-finance-midnight text-white text-sm font-semibold rounded-lg"
-          >
-            Retry Connection
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const { profile, academics, projects, companyVisits, skills } = data;
+  const portfolioData = data || initialPortfolioData;
+  const { profile, academics, projects, companyVisits, skills } = portfolioData;
 
   return (
     <div className="relative overflow-hidden bg-finance-ivory">
